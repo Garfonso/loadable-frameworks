@@ -16,8 +16,8 @@
 //
 // @@@LICENSE
 
-/*jslint white: true, onevar: true, undef: true, eqeqeq: true, plusplus: true, bitwise: true,
-regexp: true, newcap: true, immed: true, nomen: false, maxerr: 500 */
+/*jslint white: true, vars: true, undef: true, eqeq: true, plusplus: true, bitwise: true,
+regexp: true, newcap: true, nomen: true, maxerr: 500, sloppy: true */
 /*global exports, _, Class, Assert, JSON, Utils, DB, PalmCall, Future, console, Birthday, Name, IMAddress, Organization, Address, ContactBackupHash, VCardFileReader, Relation, PropertyArray, DefaultPropertyHash, Contact, ContactLinkable, IO, PhoneNumber, EmailAddress, Url, Nickname */
 
 var VCard = exports.VCard = Class.create({
@@ -69,7 +69,9 @@ VCard.MARKERS = {
 	IM: "X-IM",
 	SPOUSE_ONE_LINE: "X-SPOUSE",
 	CHILD_ONE_LINE: "X-CHILD",
-	END: "END:VCARD"
+	END: "END:VCARD",
+	FAVORITE: "X-FAVORITE",
+	REMINDER: "X-REMINDER"
 };
 
 VCard.TYPEMARKERS = {

@@ -287,6 +287,9 @@ var VCardExporter = exports.VCardExporter = Class.create({
 					break;
 				}
 			}
+
+			this._writeReminderToVCard(person.getReminder());
+			this._writeFavToVCard(person.isFavorite());
 		}
 
 		this.vCardFileWriter.writeLine(VCard.MARKERS.END + "\r\n\r");
@@ -652,6 +655,44 @@ var VCardExporter = exports.VCardExporter = Class.create({
 		noteLine += noteValue + "\r";
 
 		this.vCardFileWriter.writeLine(noteLine);
+	},
+
+	/**
+	 * PRIVATE
+	 *
+	 *
+	 *
+	 */
+	_writeReminderToVCard: function (reminderObject) {
+		if (!reminderObject) {
+			return;
+		}
+
+		var reminderLine = "",
+			reminderValue = reminderObject.getValue();
+
+		if (!reminderValue || reminderValue.length < 1) {
+			return;
+		}
+
+		reminderValue = VCardExporter._escapeString(reminderValue);
+
+		reminderLine += VCard.MARKERS.REMINDER + ":";
+
+		reminderLine += reminderValue + "\r";
+
+		this.vCardFileWriter.writeLine(reminderLine);
+	},
+
+	/**
+	 * PRIVATE
+	 *
+	 *
+	 *
+	 */
+	_writeFavToVCard: function (isFavorite) {
+		var favLine = VCard.MARKERS.FAVORITE + ":" + (isFavorite ? "1" : "0") + "\r";
+		this.vCardFileWriter.writeLine(favLine);
 	},
 
 	/**
