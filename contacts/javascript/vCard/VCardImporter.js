@@ -16,8 +16,8 @@
 //
 // @@@LICENSE
 
-/*jslint white: true, onevar: true, undef: true, eqeqeq: true, plusplus: true, bitwise: true,
-regexp: true, newcap: true, immed: true, nomen: false, maxerr: 500 */
+/*jslint white: true, vars: true, undef: true, eqeq: true, plusplus: true, bitwise: true,
+regexp: true, newcap: true, nomen: true, maxerr: 500, sloppy: true, continue: true */
 /*global exports, _, Class, Assert, JSON, VCard, Utils, DB, PalmCall, Future, console, Birthday, Name, IMAddress, Organization, Address, ContactBackupHash, VCardFileReader, Relation, PropertyArray, DefaultPropertyHash, Contact, ContactLinkable, Foundations, PhoneNumber, EmailAddress, Url, Nickname, StringUtils,Crypto, AppPrefs */
 
 var VCardImporter = exports.vCardImporter = Class.create({
@@ -47,9 +47,9 @@ var VCardImporter = exports.vCardImporter = Class.create({
 
 		this.filePath = obj.filePath;
 
-		this.vCardVersion = obj.version ?  obj.version : VCard.VERSIONS.THREE;
-		this.importToAccountId = obj.importToAccountId ? obj.importToAccountId : "";
-		this.importToContactSetId = obj.importToContactSetId ? obj.importToContactSetId : 1;
+		this.vCardVersion = obj.version || VCard.VERSIONS.THREE;
+		this.importToAccountId = obj.importToAccountId || "";
+		this.importToContactSetId = obj.importToContactSetId || 1;
 		this.currentContact = null;
 		this.vCardFileReader = null;
 	},
@@ -526,9 +526,9 @@ var VCardImporter = exports.vCardImporter = Class.create({
 
 		// splitCompany[1] has the department. We should add this someday
 
-		organization = organization ? organization : new Organization();
+		organization = organization || new Organization();
 
-		organization.setName(companyName ? companyName : "");
+		organization.setName(companyName || "");
 
 		return organization;
 	},
@@ -545,9 +545,9 @@ var VCardImporter = exports.vCardImporter = Class.create({
 	_handleJobTitle: function (line, organization) {
 		var jobTitle = this._unescapeString(this._getLineValue(line));
 
-		organization = organization ? organization : new Organization();
+		organization = organization || new Organization();
 
-		organization.setTitle(jobTitle ? jobTitle : "");
+		organization.setTitle(jobTitle || "");
 
 		return organization;
 	},
@@ -803,9 +803,9 @@ var VCardImporter = exports.vCardImporter = Class.create({
 				contactPointTypeObject = contactPointTypeObjects[contactPointType];
 
 				if (contactPointTypeObject.VCARD_VALUE && contactPointTypeObject.VCARD_VALUE === vCardType) {
-					return contactPointTypeObject.CONTACT_POINT_VALUE ? contactPointTypeObject.CONTACT_POINT_VALUE : undefined;
+					return contactPointTypeObject.CONTACT_POINT_VALUE || undefined;
 				} else if (!contactPointTypeObject.VCARD_VALUE && !defaultContactPointType) {
-					defaultContactPointType = contactPointTypeObject.CONTACT_POINT_VALUE ? contactPointTypeObject.CONTACT_POINT_VALUE : undefined;
+					defaultContactPointType = contactPointTypeObject.CONTACT_POINT_VALUE || undefined;
 				}
 			}
 		}
@@ -821,7 +821,7 @@ var VCardImporter = exports.vCardImporter = Class.create({
 	 * @returns {string} The label for the type of contactPoint
 	 */
 	_setThisTypeIfUndefined: function (returnedContactPointType, typeToSetIfUndefined) {
-		return returnedContactPointType ? returnedContactPointType : typeToSetIfUndefined;
+		return returnedContactPointType || typeToSetIfUndefined;
 	},
 
 	/**
@@ -1047,22 +1047,22 @@ var VCardImporter = exports.vCardImporter = Class.create({
 			ar;
 
 		item = contact.getAnniversary().getValue();
-		data += item ? item : "";
+		data += item || "";
 
 		item = contact.getBirthday().getValue();
-		data += item ? item : "";
+		data += item || "";
 
 		item = contact.getGender().getValue();
-		data += item ? item : "";
+		data += item || "";
 
 		item = contact.getNickname().getValue();
-		data += item ? item : "";
+		data += item || "";
 
 		item = contact.getNote().getValue() ? contact.getNote().getNormalizedHashKey() : null;
-		data += item ? item : "";
+		data += item || "";
 
 		item = contact.getName().getNormalizedHashKey();
-		data += item ? item : "";
+		data += item || "";
 
 		ar = contact.getAddresses().getArray();
 		for (i = 0; i < ar.length; i = i + 1) {
