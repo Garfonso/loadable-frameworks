@@ -16,13 +16,13 @@
 //
 // LICENSE@@@
 
-/*jslint devel: true, onevar: false, undef: true, eqeqeq: true, bitwise: true, 
-regexp: true, newcap: true, immed: true, nomen: false, maxerr: 500 */
+/*jslint nomen: true */
 
 /*global _ */
 
 if (!_.curry) {
 	_.curry = function (func) {
+		"use strict";
 		var args = _.rest(arguments, 1);
 		return function () {
 			return func.apply(this, args.concat(_.toArray(arguments)));

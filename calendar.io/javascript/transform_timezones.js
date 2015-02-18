@@ -16,8 +16,7 @@
 //
 // LICENSE@@@
 
-/*jslint bitwise: true, eqeqeq: true, immed: true, maxerr: 500, newcap: true, 
-nomen: false, onevar: true, plusplus: true, regexp: true, undef: true, white: false */
+/*jslint nomen: true */
 /*global Transform, _ */
 
 var vStandardDaylightTransform = {
@@ -25,20 +24,24 @@ var vStandardDaylightTransform = {
 	tzOffsetTo: true,
 	tzName: true,
 
-	dtstart: function(sd, options) {
+	dtstart: function (sd, options) {
+		"use strict";
 		return "DTSTART:" + sd.dtstart;
 	},
-	
-	rrule: function(sd, options) {
+
+	rrule: function (sd, options) {
+		"use strict";
 		return Transform.transformRRule(sd);
 	},
-	
-	rdate: function(sd, options) {
+
+	rdate: function (sd, options) {
+		"use strict";
 		// TODO: implement rdate handling in timezone transform
 	}
 };
 
-Transform.transformStandardDaylight = function(sd, type, options) {
+Transform.transformStandardDaylight = function (sd, type, options) {
+	"use strict";
 	return Transform.transform(sd, vStandardDaylightTransform, {
 		header: [
 			"BEGIN:" + type
@@ -54,16 +57,19 @@ Transform.transformStandardDaylight = function(sd, type, options) {
 var vTimezoneTransform = {
 	tzId: false, // tzId already included in header
 
-	standard: function(timezone, options) {
+	standard: function (timezone, options) {
+		"use strict";
 		return Transform.transformStandardDaylight(timezone.standard, "STANDARD", options);
 	},
-	
-	daylight: function(timezone, options) {
+
+	daylight: function (timezone, options) {
+		"use strict";
 		return Transform.transformStandardDaylight(timezone.daylight, "DAYLIGHT", options);
 	}
 };
 
-Transform.transformTimezones = function(vCalendar, options) {
+Transform.transformTimezones = function (vCalendar, options) {
+	"use strict";
 	var timezones;
 
 	timezones = _.map(vCalendar.timezones, function (timezone) {

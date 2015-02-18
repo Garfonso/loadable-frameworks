@@ -16,10 +16,9 @@
 //
 // LICENSE@@@
 
-/*jslint bitwise: true, devel: true, eqeqeq: true, immed: true, maxerr: 500, newcap: true, 
-nomen: false, onevar: true, plusplus: true, regexp: true, undef: true, white: false */
+/*jslint nomen: true, devel: true */
 
-/*global stringify, Transform */
+/*global stringify, Transform, IO */
 
 var alarmTransform = {
 	/* Handled generically: */
@@ -27,40 +26,54 @@ var alarmTransform = {
 	repeat: true,
 	duration: true,
 	attach: true,
-	description: true,
-	summary: true,
 	attendee: true,
 
+	summary: function (alarm) {
+		"use strict";
+		return "SUMMARY:" + IO._escapeLine(alarm.summary);
+	},
+	description: function (alarm) {
+		"use strict";
+		return "SUMMARY:" + IO._escapeLine(alarm.description);
+	},
 	alarmTrigger: function (alarm) {
+		"use strict";
 		var trigger = "TRIGGER";
-		
+
 		if (alarm.alarmTrigger.related === "START") {
 			trigger += ";RELATED=START";
 		} else if (alarm.alarmTrigger.related === "END") {
 			trigger += ";RELATED=END";
-		}		
-		
-		if (alarm.alarmTrigger.valueType === "DATETIME") {			
+		}
+
+		if (alarm.alarmTrigger.valueType === "DATETIME") {
 			trigger += ";VALUE=DATE-TIME";
 		} else if (alarm.alarmTrigger.valueType !== "DURATION") {
 			console.log("transformAlarm().alarmTrigger(): unknown alarm trigger value type: " + stringify(alarm.alarmTrigger.valueType));
-			return "";			
+			return "";
+		} else {
+			trigger += ";VALUE=DURATION";
 		}
-		
-		trigger +=  ":" + alarm.alarmTrigger.value;
-		
+
+		trigger +=  ":" + alarm.alarmTrigger.value.toUpperCase();
+
 		return trigger;
 	},
-	_id: function () {}
+	_id: function () { "use strict"; }
 };
 
 Transform.transformAlarm = function (event, options) {
+	"use strict";
 	var alarms = [];
 
 	event.alarm.forEach(function (alarm) {
 		// "none" is a placeholder value used by the Calendar app, but is
 		// not valid in this context, so we skip the alarm
 		if (alarm.alarmTrigger.value !== 'none') {
+			if (!alarm.action) {
+				alarm.action = "DISPLAY";
+			}
+
 			var result = Transform.transform(alarm, alarmTransform, {
 				header: [
 					"BEGIN:VALARM"

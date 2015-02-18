@@ -16,12 +16,12 @@
 //
 // LICENSE@@@
 
-/*jslint bitwise: true, eqeqeq: true, immed: true, maxerr: 500, newcap: true, 
-nomen: false, onevar: true, plusplus: true, regexp: true, undef: true, white: false */
+/*jslint nomen: true */
 
 /*global _, Class, stringify, Transform, ObjectUtils, Utils, IO */
 
 Transform.transformEvent = (function () {
+	"use strict";
 
 	function formatDateTimeField(event, millis) {
 		var tz = '',
@@ -32,13 +32,15 @@ Transform.transformEvent = (function () {
 			value = ";VALUE=DATE";
 			date = Transform.formatDateOnly(millis);
 		} else {
-			tz = event.tzId ? (';TZID="' + event.tzId + '"') : '';
-			date = Transform.formatDate(millis);
+			if (event.tzId && event.tzId !== "UTC") {
+				tz = ';TZID="' + event.tzId + '"';
+			}
+			date = Transform.formatDate(millis, !tz); //use zulu for UTC or if no TZ at all.
 		}
 
 		return tz + value + ':' + date;
 	}
-	
+
 	function formatDtDate(event, dateField) {
 		return formatDateTimeField(event, event[dateField]);
 	}
@@ -47,8 +49,6 @@ Transform.transformEvent = (function () {
 		/*	Handled generically: */
 		categories: true,
 		classification: "CLASS",
-		comment: true,
-		contact: true,
 		created: true,
 		geo: true,
 		priority: true,
@@ -56,13 +56,13 @@ Transform.transformEvent = (function () {
 		requestStatus: true,
 		sequence: true,
 		transp: true,
-		url: true,
-		
+
 		tzId: function (event) {
 			// "type": "string",
 			// "optional": "true",
 			// "description": "timezone string, such as America/Los_Angeles. Formerly timeZoneID"
-			// TODO: implement
+			// TODO: implement VTIMEZONE handling, which need to be added before the VEVENT.
+			return "TZID:" + event.tzId;
 		},
 		dtstart: function (event) {
 			// "type": "long",
@@ -80,7 +80,7 @@ Transform.transformEvent = (function () {
 		recurrenceId: function (event, options) {
 			// RFC 5545 requires the recurrenceId to be in the same date-time format as dtstart
 			// So if dtstart is a local time, RECURRENCE-ID must be as well.
-			
+
 			// TODO: FIX: hack so this code is only used for meeting invitations.
 			// Currently, calendar app/sync doesn't handle non-UTC recurrence ids very well.
 			// However, Exchange seems to require it to strictly follow the RFC.
@@ -94,7 +94,7 @@ Transform.transformEvent = (function () {
 					Utils.error("Error parsing recurrenceId");
 				}
 			}
-			
+
 			return "RECURRENCE-ID:" + event.recurrenceId;
 		},
 		alarm: function (event, options) {
@@ -142,21 +142,30 @@ Transform.transformEvent = (function () {
 			// "optional": "true"
 			// TODO: implement
 		},
-		
+
 		uid: function (event) {
 			return "UID:" + event.uid;
 		},
-		
+
 		note: function (event) {
 			return "DESCRIPTION:" + IO._escapeLine(event.note);
 		},
-		
+
 		subject: function (event) {
 			return "SUMMARY:" + IO._escapeLine(event.subject);
 		},
-		
+
 		location: function (event) {
 			return "LOCATION:" + IO._escapeLine(event.location);
+		},
+		comment: function (event) {
+			return "COMMENT:" + IO._escapeLine(event.comment);
+		},
+		contact: function (event) {
+			return "CONTACT:" + IO._escapeLine(event.contact);
+		},
+		url: function (event) {
+			return "URL:" + event.url;
 		},
 
 		// Filter out vCalendar object fields
@@ -178,8 +187,8 @@ Transform.transformEvent = (function () {
 
 		// Filter out Calendar's little crufty bits
 		alldayReserveddtstart: false,
-        alldayReservedEndTimestamp: false,
-        alldayReservedStartTimestamp: false,
+		alldayReservedEndTimestamp: false,
+		alldayReservedStartTimestamp: false,
 		animatible: false,
 		calendarColor: false,
 		currentLocalEnd: false,
@@ -236,11 +245,12 @@ Transform.transformEvent = (function () {
 }());
 
 var eventToVCalendar = IO.eventToVCalendar = function (events, timezones, method, options) {
+	"use strict";
 	var vCalendarTransform = {
 			events: function (vCalendar) {
 				return Transform.transformEvent(vCalendar, options);
 			},
-			
+
 			timezones: function (vCalendar) {
 				return Transform.transformTimezones(vCalendar, options);
 			}
@@ -261,8 +271,8 @@ var eventToVCalendar = IO.eventToVCalendar = function (events, timezones, method
 		}
 		return false;
 	});
-	
-	if(method) {
+
+	if (method) {
 		header.push("METHOD:" + method);
 	}
 
@@ -277,5 +287,6 @@ var eventToVCalendar = IO.eventToVCalendar = function (events, timezones, method
 };
 
 var eventRRuleToVCalendarRRule = IO.eventRRuleToVCalendarRRule = function (event, options) {
+	"use strict";
 	return Transform.transformRRule(event, options);
 };

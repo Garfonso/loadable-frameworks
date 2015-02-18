@@ -16,12 +16,12 @@
 //
 // LICENSE@@@
 
-/*jslint bitwise: true, devel: true, eqeqeq: true, immed: true, maxerr: 500, newcap: true, 
-nomen: false, onevar: true, regexp: true, undef: true, white: false */
+/*jslint nomen: true */
 
 /*global Import, IO, Utils */
 
-Import.importRrule = (function() {
+Import.importRrule = (function () {
+	"use strict";
 	function parseRruleFreqField(line) {
 		return (IO._valueAfterDelimiter(line, "="));
 	}
@@ -55,7 +55,7 @@ Import.importRrule = (function() {
 		function extractDayIndex(dayStr) {
 			var dayCode = dayStr.substring(dayStr.length - 2).toUpperCase(),
 				day = IO._days[dayCode];
-			if (! (dayCode in IO._days)) {
+			if (!(day)) {
 				throw new Error("wrong day in RRULE BYDAY ORDDAY");
 			}
 			return day;
@@ -100,7 +100,7 @@ Import.importRrule = (function() {
 			ordDay,
 			parser = options.customParser || parseRruleGenericByField;
 
-		for (i = 0; i < daysArray.length; ++i) {
+		for (i = 0; i < daysArray.length; i += 1) {
 			try {
 				ordDay = parser(daysArray[i], options);
 			} catch (e) {
@@ -181,7 +181,7 @@ Import.importRrule = (function() {
 		}
 	};
 
-	return function(line) {
+	return function (line) {
 		var rruleObject = {},
 			value,
 			// rules,
@@ -204,7 +204,7 @@ Import.importRrule = (function() {
 				rruleObject[IO._RRULEFREQ_PROP_NAME] = parseRruleFreqField(property);
 			} else if (IO._RRULEINTERVAL_REGEX.test(property)) {
 				value = parseRruleIntervalField(property);
-				rruleObject[IO._RRULEINTERVAL_PROP_NAME] = value > 0 ? value: undefined;
+				rruleObject[IO._RRULEINTERVAL_PROP_NAME] = value > 0 ? value : undefined;
 			} else if (IO._RRULECOUNT_REGEX.test(property)) {
 			//exclusive of UNTIL //TASK:foce exclusivity
 				rruleObject[IO._RRULECOUNT_PROP_NAME] = parseRruleCountField(property);

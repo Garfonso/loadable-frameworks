@@ -16,9 +16,6 @@
 //
 // LICENSE@@@
 
-/*jslint devel: true, onevar: false, undef: true, eqeqeq: true, bitwise: true, 
-regexp: true, newcap: true, immed: true, nomen: false, maxerr: 500 */
-
 /*global exports, IO, stringify, Utils */
 
 exports.IO = IO;

@@ -16,6 +16,7 @@
 //
 // LICENSE@@@
 
+/*jslint nomen: true */
 /*global MojoLoader */
 
 var IMPORTS = MojoLoader.require(

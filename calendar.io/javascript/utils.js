@@ -16,47 +16,49 @@
 //
 // LICENSE@@@
 
-/*jslint bitwise: true, devel: true, eqeqeq: true, immed: true, maxerr: 500, newcap: true,
-nomen: false, onevar: true, plusplus: false, regexp: true, undef: true, white: false */
+/*jslint nomen: true, regexp: true, devel: true */
 
 /*global _, ObjectUtils, stringify, Config */
 
 var Utils = {
-	/*jslint regexp: false */
 	stripwsRegex: /^[\s]*([^\s].*[^\s])?[\s]*$/,
 	lstripwsRegex: /^[\s]*([^\s].*)?$/,
 	rstripwsRegex: /^(.*[^\s])?[\s]*$/,
-	/*jslint regexp: true */
 
 	strip: function (str, charset) {
+		"use strict";
 		var regex = charset ?
-			new RegExp("^[" + charset + "]*([^" + charset + "].*[^" + charset + "])?[" + charset + "]*$") :
-			Utils.stripwsRegex;
+					new RegExp("^[" + charset + "]*([^" + charset + "].*[^" + charset + "])?[" + charset + "]*$") :
+					Utils.stripwsRegex;
 		return str.replace(regex, "$1");
 	},
 
 	lstrip: function (str, charset) {
+		"use strict";
 		var regex = charset ?
-			new RegExp("^[" + charset + "]*([^" + charset + "].*)?$") :
-			Utils.lstripwsRegex;
+					new RegExp("^[" + charset + "]*([^" + charset + "].*)?$") :
+					Utils.lstripwsRegex;
 		return str.replace(regex, "$1");
 	},
 
 	rstrip: function (str, charset) {
+		"use strict";
 		var regex = charset ?
-			new RegExp("^(.*[^" + charset + "])?[" + charset + "]*$") :
-			Utils.rstripwsRegex;
+					new RegExp("^(.*[^" + charset + "])?[" + charset + "]*$") :
+					Utils.rstripwsRegex;
 		return str.replace(regex, "$1");
 	},
 
 	numDigits: function (num) {
+		"use strict";
 		if (num < 0) {
 			num = -num;
 		}
-		return num === 0 ? 1 : Math.floor(1+(Math.log(num)/Math.log(10)));
+		return num === 0 ? 1 : Math.floor(1 + (Math.log(num) / Math.log(10)));
 	},
 
 	formatWithLeadingZeros: function (num, places) {
+		"use strict";
 		var digits = Utils.numDigits(num);
 		if (places === undefined) {
 			places = 2;
@@ -87,6 +89,7 @@ var Utils = {
 	 * @returns {String} ISO-8601 formatted string
 	 */
 	dateToIso8601: function (date, options) {
+		"use strict";
 		options = options || {};
 
 		if (typeof (options) === "boolean") {
@@ -100,6 +103,7 @@ var Utils = {
 		function dash() { return options.noPunct ? '' : '-'; }
 		function colon() { return options.noPunct ? '' : ':'; }
 
+		/*jslint white: true */
 		function getFullYear()		{ return options.useZulu ? date.getUTCFullYear()		: date.getFullYear(); }
 		function getMonth()			{ return options.useZulu ? date.getUTCMonth()			: date.getMonth(); }
 		function getDate()			{ return options.useZulu ? date.getUTCDate()			: date.getDate(); }
@@ -107,6 +111,7 @@ var Utils = {
 		function getMinutes()		{ return options.useZulu ? date.getUTCMinutes()			: date.getMinutes(); }
 		function getSeconds()		{ return options.useZulu ? date.getUTCSeconds()			: date.getSeconds(); }
 		function getMilliseconds()	{ return options.useZulu ? date.getUTCMilliseconds()	: date.getMilliseconds(); }
+		/*jslint white: false */
 
 		function formatDate() {
 			return getFullYear() + dash() +
@@ -202,6 +207,7 @@ var Utils = {
 	 * @see parseIso8601Duration
 	 */
 	dateFromIso8601: function (isoDate, options) {
+		"use strict";
 		Utils.debug(">>> dateFromIso8601(): isoDate: " + stringify(isoDate));
 
 		options = options || {};
@@ -308,6 +314,7 @@ var Utils = {
 	 * @see http://en.wikipedia.org/wiki/ISO_8601#Durations
 	 */
 	parseIso8601Duration: function (duration) {
+		"use strict";
 		// This gives us (for a valid ISO 8601 duration) the following array:
 		// [<full match>][<+/->][<year>][<month>][<day>][<hours>][<minutes>][<seconds>][<weeks>]
 		var durationRegex = new RegExp("([-+]?)P(?:(?:(?:([0-9]+)Y)?(?:([0-9]+)M)?(?:([0-9]+)D)?)?(?:T(?:([0-9]+)H)?(?:([0-9]+)M)?(?:([0-9\\.]+)S)?)?)|(?:([0-9]+)W)"),
@@ -336,30 +343,35 @@ var Utils = {
 			seconds:	Number(result[offsets.seconds])	|| undefined
 		};
 	},
-	
+
 	log: function () {
+		"use strict";
 		var argsArr = Array.prototype.slice.call(arguments, 0);
 		Utils._logBase("log", argsArr);
 	},
 
 	warn: function () {
+		"use strict";
 		var argsArr = Array.prototype.slice.call(arguments, 0);
 		Utils._logBase("warn", argsArr);
 	},
 
 	error: function () {
+		"use strict";
 		var argsArr = Array.prototype.slice.call(arguments, 0);
 		Utils._logBase("error", argsArr);
 	},
 
-	debug: function() {
+	debug: function () {
+		"use strict";
 		if (Config && Config.logs === "debug") {
 			var argsArr = Array.prototype.slice.call(arguments, 0);
 			Utils._logBase("log", argsArr);
 		}
 	},
-	
+
 	_logBase: function (method, argsArr) {
+		"use strict";
 		var data = argsArr.reduce(function (accumulatedMessage, curArg) {
 			if (typeof curArg === "string") {
 				return accumulatedMessage + curArg;
@@ -367,14 +379,14 @@ var Utils = {
 				return accumulatedMessage + JSON.stringify(curArg);
 			}
 		}, ""),
-		i, 
-		pos, 
-		datum;
-			
+			i,
+			pos,
+			datum;
+
 		if (Config && Config.logs === "verbose") {
 			// I want ALL my logs!
 			data = data.split("\n");
-			for (i = 0; i < data.length; ++i) {
+			for (i = 0; i < data.length; i += 1) {
 				datum = data[i];
 				if (datum.length < 500) {
 					console[method](datum);

@@ -16,8 +16,7 @@
 //
 // LICENSE@@@
 
-/*jslint bitwise: true, eqeqeq: true, immed: true, maxerr: 500, newcap: true, 
-nomen: false, onevar: true, plusplus: true, regexp: true, undef: true, white: false */
+/*jslint nomen: true */
 
 /*global ObjectUtils, Transform, _ */
 
@@ -58,6 +57,7 @@ nomen: false, onevar: true, plusplus: true, regexp: true, undef: true, white: fa
 */
 
 var RruleTransform = function RruleTransform(allDay) {
+	"use strict";
 	this.allDay = allDay;
 };
 
@@ -66,8 +66,9 @@ RruleTransform.prototype = {
 	freq: true,
 	count: true,
 	interval: true,
-	
+
 	until: function (rrule) {
+		"use strict";
 		if (this.allDay) {
 			return "UNTIL=" + Transform.formatDateOnly(rrule.until, true);
 		}
@@ -79,6 +80,7 @@ RruleTransform.prototype = {
 	],
 
 	rules: function (rrule) {
+		"use strict";
 		var out = [],
 			ruleValue;
 		rrule.rules.forEach(function ruleIterator(rule) {
@@ -93,8 +95,8 @@ RruleTransform.prototype = {
 
 				rule.ruleValue.forEach(function ruleValueIterator(value) {
 					ruleValue.push(
-						(value.ord ? value.ord : '') +
-						(_.isNumber(value.day) ? RruleTransform.prototype.wkst[value.day] : '')
+						(value.ord || '') +
+							(_.isNumber(value.day) ? RruleTransform.prototype.wkst[value.day] : '')
 					);
 				});
 
@@ -107,6 +109,7 @@ RruleTransform.prototype = {
 };
 
 Transform.transformRRule = function (event, options) {
+	"use strict";
 	var params = Transform.transform(event.rrule, new RruleTransform(event.allDay), {
 		separator: '=',
 		joiner: ';'

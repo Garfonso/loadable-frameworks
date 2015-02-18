@@ -16,8 +16,9 @@
 //
 // LICENSE@@@
 
-/*jslint white: true, onevar: true, undef: true, eqeqeq: true, plusplus: true, bitwise: true, 
-regexp: true, newcap: true, immed: true, nomen: false, maxerr: 500 */
+/*jslint nomen: true */
+//disable break warning in jshint, because it can't do path analysis, yet.
+//jshint -W086
 
 /*global MojoLoader */
 
@@ -31,6 +32,7 @@ var stringify_ = stringifyIMPORTS.underscore._;
 //a much better stringify than JSON.stringify, since it doesn't die when given a circular structure.
 //however, it's not guaranteed to produce valid JSON (namely, not when given a circular structure or a structure containing functions)
 var stringify = function stringify(root, printFunctionCode, indentSize) {
+	"use strict";
 	var keysFn = Object.keys || function (obj) {
 			var keys = [],
 				key;
@@ -44,37 +46,37 @@ var stringify = function stringify(root, printFunctionCode, indentSize) {
 		newline = "",
 		indentToken = "",
 		gap = "";
-	
+
 	//if the caller doesn't pass an indentSize, default to 4.  but let them pass 0
 	if (!indentSize && indentSize !== 0) {
 		indentSize = 4;
 	}
-	
+
 	if (indentSize) {
 		newline = "\n";
 		indentToken = "          ".substring(0, indentSize);
 		gap = " ";
 	}
-	
+
 	//return whether the given node has been visited already, and if not mark it as visited
 	function visitNode(visitedNodes, node) {
 		var visited = false,
 			i;
-		
+
 		for (i = 0; i < visitedNodes.length; i += 1) {
 			if (visitedNodes[i] === node) {
 				visited = true;
 				break;
 			}
 		}
-		
+
 		if (!visited) {
 			visitedNodes.push(node);
 		}
-		
+
 		return visited;
 	}
-	
+
 	//copied from Foundations.ObjectUtils
 	function type(model) {
 		if (model === null) {
@@ -95,7 +97,7 @@ var stringify = function stringify(root, printFunctionCode, indentSize) {
 			return "object";
 		}
 	}
-	
+
 	function stringifyHelper(curNodeName, curNode, visitedNodes, curIndent) {
 		var curNodeType = type(curNode),
 			name = curIndent + ((curNodeName) ? "\"" + curNodeName + "\":" + gap : ""),
@@ -104,23 +106,23 @@ var stringify = function stringify(root, printFunctionCode, indentSize) {
 			i,
 			keys,
 			retVal;
-		
+
 		switch (curNodeType) {
 		case "null":
 			return name + "null";
-			
+
 		case "undefined":
 			return name + "undefined";
-			
+
 		case "number":
 			return name + curNode;
-			
+
 		case "string":
 			return name + JSON.stringify(curNode);
-			
+
 		case "bool":
 			return name + curNode;
-			
+
 		case "array":
 			innerVisitedNodes = stringify_.clone(visitedNodes);
 			visited = visitNode(innerVisitedNodes, curNode);
@@ -128,30 +130,26 @@ var stringify = function stringify(root, printFunctionCode, indentSize) {
 				return name + "<Already Visited Array>";
 			} else {
 				retVal = name + "[";
-				
+
 				for (i = 0; i < curNode.length; i += 1) {
 					retVal += (i === 0) ? newline : "";
 					retVal += stringifyHelper("", curNode[i], innerVisitedNodes, curIndent + indentToken);
 					retVal += (i < curNode.length - 1) ? "," : "";
 					retVal += newline;
 				}
-				
+
 				retVal += (i > 0) ? curIndent : "";
 				retVal += "]";
 				return retVal;
 			}
-			//this isn't necessary, except that jslint doesn't do path analysis - both paths of the if return
-			break;
-			
+
 		case "function":
 			if (printFunctionCode) {
 				return name + curNode.toString();
 			} else {
 				return name + "<Function>";
 			}
-			//this isn't necessary, except that jslint doesn't do path analysis - both paths of the if return
-			break;
-			
+
 		case "object":
 			innerVisitedNodes = stringify_.clone(visitedNodes);
 			visited = visitNode(innerVisitedNodes, curNode);
@@ -160,14 +158,14 @@ var stringify = function stringify(root, printFunctionCode, indentSize) {
 			} else {
 				retVal = name + "{";
 				keys = keysFn(curNode);
-				
+
 				for (i = 0; i < keys.length; i += 1) {
 					retVal += (i === 0) ? newline : "";
 					retVal += stringifyHelper(keys[i], curNode[keys[i]], innerVisitedNodes, curIndent + indentToken);
 					retVal += (i < keys.length - 1) ? "," : "";
 					retVal += newline;
 				}
-				
+
 				retVal += (i > 0) ? curIndent : "";
 				retVal += "}";
 				return retVal;
