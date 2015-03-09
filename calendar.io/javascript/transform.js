@@ -97,13 +97,6 @@ var Transform = {
 		return (transformFieldName || field.toUpperCase()) + separator + quoteStringContaining(event[field], quotable).toUpperCase();
 	},
 
-	//reads tzid of event and transforms events, so that Date(ts) will get them the right day, hour, ... values.
-	//returns a future and is meant as preprocessing step.
-	transformTimestampsToRightTimezone: function (events, TZManager) {
-		"use strict";
-		return IO.normalizeToEventTimezone(events, TZManager);
-	},
-
 	transform: function (event, transformer, transformParams, options) {
 		"use strict";
 		transformParams = transformParams || {};

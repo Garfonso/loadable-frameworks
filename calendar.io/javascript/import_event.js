@@ -104,7 +104,13 @@ Import.importEvent = (function () {
 	}
 
 	function parseCreatedField(line) {
-		return (IO._textValueFromLine(line));
+		var created = IO._textValueFromLine(line, "=");
+		// Don't attempt timezone conversion here; we'll do it later
+		created = created && Utils.dateFromIso8601(created, true);
+		created = created && created.getTime();
+		return created;
+
+		// return( IO._textValueFromLine( line ) );
 	}
 
 	function parseGeoField(line) {
@@ -112,7 +118,11 @@ Import.importEvent = (function () {
 	}
 
 	function parseLastModifiedField(line) {
-		return (IO._textValueFromLine(line));
+		var mofied = IO._textValueFromLine(line, "=");
+		// Don't attempt timezone conversion here; we'll do it later
+		mofied = mofied && Utils.dateFromIso8601(mofied, true);
+		mofied = mofied && mofied.getTime();
+		return mofied;
 	}
 
 	function parsePriorityField(line) {

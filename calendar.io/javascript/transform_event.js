@@ -49,7 +49,6 @@ Transform.transformEvent = (function () {
 		/*	Handled generically: */
 		categories: true,
 		classification: "CLASS",
-		created: true,
 		geo: true,
 		priority: true,
 		relatedTo: "RELATED-TO",
@@ -132,6 +131,11 @@ Transform.transformEvent = (function () {
 			// "optional": "true"
 			return "LAST-MODIFIED" + (event.tzId ? (';TZID="' + event.tzId + '"') : '') + ':' + Transform.formatDate(event.lastModified, !event.tzId);
 		},
+		created: function (event) {
+			// "type": "int",
+			// "optional": "true"
+			return "CREATED" + (event.tzId ? (';TZID="' + event.tzId + '"') : '') + ':' + Transform.formatDate(event.created, !event.tzId);
+		},
 		resources: function (event) {
 			// "type": "string",
 			// "optional": "true"
@@ -171,6 +175,8 @@ Transform.transformEvent = (function () {
 		// Filter out vCalendar object fields
 		version: false,
 		prodid: false,
+		calscale: false,
+		method: false,
 
 		// Filter out fields specific to local store
 		_del: false,
@@ -284,6 +290,19 @@ var eventToVCalendar = IO.eventToVCalendar = function (events, timezones, method
 		separator: ':',
 		foldlines: true
 	}, options);
+};
+
+var eventToVCalendarTZHandling = IO.eventToVCalendarTZHandling = function (events, TZManager, method, options) {
+	"use strict";
+	//reads tzid of event and transforms events, so that Date(ts) will get them the right day, hour, ... values.
+	//returns a future and is meant as preprocessing step.
+	var future = IO.normalizeToEventTimezone(events, TZManager);
+	future.then(function tzCB() {
+		var modifiedEvents = future.result,
+			vCal = IO.eventToVCalendar(modifiedEvents, undefined, method, options);
+		future.result = vCal;
+	});
+	return future;
 };
 
 var eventRRuleToVCalendarRRule = IO.eventRRuleToVCalendarRRule = function (event, options) {
